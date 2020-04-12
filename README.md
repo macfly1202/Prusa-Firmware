@@ -19,14 +19,15 @@ Custom features and local changes are documented in: [CUSTOM.md](https://github.
 //  #define X_MS1_PIN 40
 //  #define X_MS2_PIN 41
   
-  // my remap PIN
+  // my remap PINS
   #define X_STEP_PIN 28
   #define X_DIR_PIN 17
   #define X_ENABLE_PIN 26
   #define X_MS1_PIN 40
   #define X_MS2_PIN 41
 
-I use only 1 pin for ENABLE XYZ axis lik eThomas Salamnder suggest in on eof his video. The last PIN missing is derivated from from extansion P3, Tx wire.   
+I use only 1 pin for ENABLE XYZ axis lik eThomas Salamnder suggest in on eof his video. The last PIN missing is derivated from from extansion P3, Tx wire.
+Thanks @Thess for such nice firmware and the 9 poins bed level correction
 
 ## Disclaimer
 
