@@ -54,6 +54,6 @@ deploy:
   file: prusa3d_fw_${TRAVIS_TAG}.zip
   skip_cleanup: true
   on:
-    repo: thess/Prusa-Firmware
+    repo: macfly1202/Prusa-Firmware
     branch: private-build2
     tags: true
