@@ -9,7 +9,24 @@ This custom firmware is forked from the Original Prusa i3 MK2 Firmware (MK2 bran
 - Fixed bugs as appropriate.
 
 Custom features and local changes are documented in: [CUSTOM.md](https://github.com/thess/Prusa-Firmware/blob/private-build2/CUSTOM.md)
- 
+
+[EDIT 2020-04-12] I use this firmware to test a burn PIN on ATMEL 2560 of rambo mini for X axis. They have bin remap "Physically" 
+
+// genuine config from Thess
+//  #define X_STEP_PIN 37
+//  #define X_DIR_PIN 48
+//  #define X_ENABLE_PIN 29
+//  #define X_MS1_PIN 40
+//  #define X_MS2_PIN 41
+  
+  // my remap PIN
+  #define X_STEP_PIN 28
+  #define X_DIR_PIN 17
+  #define X_ENABLE_PIN 26
+  #define X_MS1_PIN 40
+  #define X_MS2_PIN 41
+
+I use only 1 pin for ENABLE XYZ axis lik eThomas Salamnder suggest in on eof his video. The last PIN missing is derivated from from extansion P3, Tx wire.   
 
 ## Disclaimer
 
