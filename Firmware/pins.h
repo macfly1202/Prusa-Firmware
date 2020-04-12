@@ -21,28 +21,40 @@
 
   #define FR_SENS 21
 
-
-  #define X_STEP_PIN 37
-  #define X_DIR_PIN 48
-  #define X_ENABLE_PIN 29
+// genuine config from Thess
+//  #define X_STEP_PIN 37
+//  #define X_DIR_PIN 48
+//  #define X_ENABLE_PIN 29
+//  #define X_MS1_PIN 40
+//  #define X_MS2_PIN 41
+  
+  //  Remap some pins for X axis becaus eI burned them in a short citrcuit
+  // symptom of a dead X axis is nothing move
+    #define X_STEP_PIN 28 // 37
+  #define X_DIR_PIN 17 // 48
+  #define X_ENABLE_PIN 26 // 29
   #define X_MS1_PIN 40
   #define X_MS2_PIN 41
+
   #define Y_STEP_PIN 36
   #define Y_DIR_PIN 49
-  #define Y_ENABLE_PIN 28
+  #define Y_ENABLE_PIN 26 // 28
   #define Y_MS1_PIN 69
   #define Y_MS2_PIN 39
+  
   #define Z_STEP_PIN 35
   #define Z_DIR_PIN 47
-  #define Z_ENABLE_PIN 27
+  #define Z_ENABLE_PIN 26 // 27 PAD HS 
   #define Z_MS1_PIN 68
   #define Z_MS2_PIN 67
+  
   #define TEMP_BED_PIN 2
   #define TEMP_0_PIN 0
   #define HEATER_1_PIN 7
   #define TEMP_1_PIN 1
   #define TEMP_2_PIN -1
   
+
 #ifndef DISABLE_MAX_ENDSTOPS
   #define X_MAX_PIN 30
   #define Z_MAX_PIN 23
@@ -66,7 +78,7 @@
 
 #ifdef SNMM 
 
-#define E_MUX0_PIN 17
+#define E_MUX0_PIN -1 //17
 #define E_MUX1_PIN 16
 
 

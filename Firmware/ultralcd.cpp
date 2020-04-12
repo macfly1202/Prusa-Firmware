@@ -15,6 +15,8 @@
 
 #include "SdFatUtil.h"
 
+#include "sound.h"
+
 #define _STRINGIFY(s) #s
 
 
@@ -581,8 +583,8 @@ void lcd_commands()
 			lcd_setstatuspgm(MSG_PRINT_PAUSED);
 			isPrintPaused = true;
 			long_pause();
-			lcd_commands_type = 0;
-			lcd_commands_step = 0;
+               lcd_commands_type = 0;
+               lcd_commands_step = 0;
 		}
 
 	}
@@ -3144,6 +3146,11 @@ static void lcd_sort_type_set() {
 }
 #endif //SDCARD_SORT_ALPHA
 
+static void lcd_sound_state_set(void)
+{
+Sound_CycleState();
+}
+
 static void lcd_silent_mode_set() {
 	switch (SilentModeMenu) {
 	case 0: SilentModeMenu = 1; break;
@@ -3614,6 +3621,21 @@ static void lcd_settings_menu()
 	  }
   }
 #endif // SDCARD_SORT_ALPHA
+
+switch(eSoundMode)
+     {
+     case e_SOUND_MODE_LOUD:
+            MENU_ITEM(function,MSG_SOUND_MODE_LOUD,lcd_sound_state_set);
+          break;
+     case e_SOUND_MODE_ONCE:
+          MENU_ITEM(function,MSG_SOUND_MODE_ONCE,lcd_sound_state_set);
+          break;
+     case e_SOUND_MODE_SILENT:
+          MENU_ITEM(function,MSG_SOUND_MODE_SILENT,lcd_sound_state_set);
+          break;
+     default:
+          MENU_ITEM(function,MSG_SOUND_MODE_LOUD,lcd_sound_state_set);
+     }
     
     if (farm_mode)
     {
@@ -4927,6 +4949,22 @@ static void lcd_tune_menu()
 	  default: MENU_ITEM(function, MSG_SILENT_MODE_OFF, lcd_silent_mode_set_tune); break;
 	  }
   }
+
+  switch(eSoundMode)
+       {
+       case e_SOUND_MODE_LOUD:
+            MENU_ITEM(function,MSG_SOUND_MODE_LOUD,lcd_sound_state_set);
+            break;
+       case e_SOUND_MODE_ONCE:
+            MENU_ITEM(function,MSG_SOUND_MODE_ONCE,lcd_sound_state_set);
+            break;
+       case e_SOUND_MODE_SILENT:
+            MENU_ITEM(function,MSG_SOUND_MODE_SILENT,lcd_sound_state_set);
+            break;
+        default:
+            MENU_ITEM(function,MSG_SOUND_MODE_LOUD,lcd_sound_state_set);
+       }
+
   END_MENU();
 }
 
@@ -4987,6 +5025,42 @@ static void lcd_sd_updir()
   currentMenuViewOffset = 0;
 }
 
+void lcd_print_stop() {
+		cancel_heatup = true;
+#ifdef MESH_BED_LEVELING
+		mbl.active = false;
+#endif
+		// Stop the stoppers, update the position from the stoppers.
+		if (mesh_bed_leveling_flag == false && homing_flag == false) {
+			planner_abort_hard();
+			// Because the planner_abort_hard() initialized current_position[Z] from the stepper,
+			// Z baystep is no more applied. Reset it.
+			babystep_reset();
+		}
+		// Clean the input command queue.
+		cmdqueue_reset();
+		lcd_setstatuspgm(MSG_PRINT_ABORTED);
+		lcd_update(2);
+		card.sdprinting = false;
+		card.closefile();
+
+		stoptime = millis();
+		unsigned long t = (stoptime - starttime - pause_time) / 1000; //time in s
+		pause_time = 0;
+		save_statistics(total_filament_used, t);
+		lcd_return_to_status();
+		lcd_ignore_click(true);
+          lcd_commands_step = 0;
+		lcd_commands_type = LCD_COMMAND_STOP_PRINT;
+		if (farm_mode) prusa_statistics(7);
+		// Turn off the print fan
+		SET_OUTPUT(FAN_PIN);
+		WRITE(FAN_PIN, 0);
+		fanSpeed=0;
+}
+
+
+
 
 void lcd_sdcard_stop()
 {
@@ -5014,37 +5088,7 @@ void lcd_sdcard_stop()
 		}
 		if ((int32_t)encoderPosition == 2)
 		{
-		cancel_heatup = true;
-        #ifdef MESH_BED_LEVELING
-        mbl.active = false;
-        #endif
-        // Stop the stoppers, update the position from the stoppers.
-		if (mesh_bed_leveling_flag == false && homing_flag == false) {
-			planner_abort_hard();
-			// Because the planner_abort_hard() initialized current_position[Z] from the stepper,
-			// Z baystep is no more applied. Reset it.
-			babystep_reset();
-		}
-        // Clean the input command queue.
-        cmdqueue_reset();
-				lcd_setstatuspgm(MSG_PRINT_ABORTED);
-				lcd_update(2);
-				card.sdprinting = false;
-				card.closefile();
-
-				stoptime = millis();
-				unsigned long t = (stoptime - starttime - pause_time) / 1000; //time in s
-				pause_time = 0;
-				save_statistics(total_filament_used, t);
-
-				lcd_return_to_status();
-				lcd_ignore_click(true);
-				lcd_commands_type = LCD_COMMAND_STOP_PRINT;
-				if (farm_mode) prusa_statistics(7);
-                // Turn off the print fan
-                SET_OUTPUT(FAN_PIN);
-                WRITE(FAN_PIN, 0);
-                fanSpeed=0;
+			lcd_print_stop();
 		}
 	}
 
@@ -6305,11 +6349,6 @@ void lcd_setcontrast(uint8_t value)
 /* Warning: This function is called from interrupt context */
 void lcd_buttons_update()
 {
-  // Avoid re-entrancy from temperature interrups
- static bool in_buttons_update = false;
- if (in_buttons_update) return;
- in_buttons_update = true;
-
 #ifdef NEWPANEL
   uint8_t newbutton = 0;
   if (READ(BTN_EN1) == 0)  newbutton |= EN_A;
@@ -6434,7 +6473,6 @@ void lcd_buttons_update()
     }
   }
   lastEncoderBits = enc;
-  in_buttons_update = false;
 }
 
 bool lcd_detected(void)

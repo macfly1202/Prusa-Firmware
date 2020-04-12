@@ -129,7 +129,6 @@
 #define MSG_HEATING_COMPLETE                "Zahrivani OK."
 #define MSG_BED_HEATING                     "Zahrivani bed"
 #define MSG_BED_DONE                        "Bed OK."
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1.0.2; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" CUSTOM_MENDEL_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_RESEND                          "Resend: "
@@ -353,5 +352,6 @@
 #define MSG_FILE_CNT						"Nektere soubory nebudou setrideny. Maximalni pocet souboru pro setrideni je 100."
 #define MSG_WIZARD_HEATING					"Predehrivam trysku. Prosim cekejte."
 #define MSG_M117_V2_CALIBRATION				"M117 Kal. prvni vrstvy"
+
 #define MSG_SKEW_CORRECTION_ON			"XY Korekce [ON]"
 #define MSG_SKEW_CORRECTION_OFF			"XY Korekce [OFF]"

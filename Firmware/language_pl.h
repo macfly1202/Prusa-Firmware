@@ -96,7 +96,6 @@
 #define MSG_M221_INVALID_EXTRUDER           "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1.0.2; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" CUSTOM_MENDEL_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_RESEND                          "Resend: "
@@ -350,5 +349,6 @@
 #define MSG_FILE_CNT						"Niektore pliki nie beda sortowane. Max. ilosc plikow do sortu w 1 folderze to 100."
 #define MSG_WIZARD_HEATING					"Nagrzewanie dyszy. Prosze czekac."
 #define MSG_M117_V2_CALIBRATION				"M117 Kal. 1. warstwy"
+
 #define MSG_SKEW_CORRECTION_ON			"XY Korekta [ON]"
 #define MSG_SKEW_CORRECTION_OFF			"XY Korekta [OFF]"

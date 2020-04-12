@@ -72,7 +72,7 @@
 #define MSG_BED_HEATING                     "Calentando Base"
 #define MSG_BED_DONE                        "Base preparada"
 #define MSG_LANGUAGE_NAME					"Espanol"
-#define MSG_LANGUAGE_SELECT		    "Cambiae el idioma"
+#define MSG_LANGUAGE_SELECT		    "Cambiar el idioma"
 #define MSG_PRUSA3D							"prusa3d.com"
 #define MSG_PRUSA3D_FORUM					"forum.prusa3d.com"
 #define MSG_PRUSA3D_HOWTO					"howto.prusa3d.com"
@@ -97,7 +97,6 @@
 #define MSG_M221_INVALID_EXTRUDER           "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1.0.2; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" CUSTOM_MENDEL_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_RESEND                          "Resend: "
@@ -347,5 +346,6 @@
 #define MSG_FILE_CNT						"Algunos archivos no seran ordenados. El Max. num. de archivos para ordenar en 1 carpeta es 100."
 #define MSG_WIZARD_HEATING					"Precalentando nozzle. Espera por favor."
 #define MSG_M117_V2_CALIBRATION				"M117 Cal. primera cap."
+
 #define MSG_SKEW_CORRECTION_ON			"XY Corr. [ON]"
 #define MSG_SKEW_CORRECTION_OFF			"XY Corr. [OFF]"

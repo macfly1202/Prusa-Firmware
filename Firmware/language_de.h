@@ -182,7 +182,7 @@
 #define(length = 20) MSG_SELFTEST_CHECK_X				"Pruefe X Achse    "
 #define(length = 20) MSG_SELFTEST_CHECK_Y				"Pruefe Y Achse    "
 #define(length = 20) MSG_SELFTEST_CHECK_Z				"Pruefe Z Achse    "
-#define(length = 20) MSG_SELFTEST_CHECK_BED				"Pruefe Bett       "
+#define(length = 20) MSG_SELFTEST_CHECK_BED				"Pruefe Bed        "
 #define(length = 20) MSG_SELFTEST_CHECK_ALLCORRECT	"Alles richtig    "
 #define MSG_SELFTEST						"Selbsttest       "
 #define(length = 20) MSG_SELFTEST_FAILED		"Selbsttest misslung."
@@ -365,5 +365,6 @@
 #define MSG_FILE_CNT						"Einige Dateien werden nicht sortiert. Max. Anzahl der Dateien in einem Ordner ist 100."
 #define MSG_WIZARD_HEATING					"Vorheizen der Duese. Bitte warten."
 #define MSG_M117_V2_CALIBRATION				"M117 Erste-Schicht Kal."
+
 #define MSG_SKEW_CORRECTION_ON			"XY Korrekt [ON]"
 #define MSG_SKEW_CORRECTION_OFF			"XY Korrekt [OFF]"

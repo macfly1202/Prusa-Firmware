@@ -102,7 +102,7 @@ EXTRUDER SETTINGS
 #endif
 #define HEATER_1_MAXTEMP 305
 #define HEATER_2_MAXTEMP 305
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP 125
 
 #if defined(E3D_PT100_EXTRUDER_WITH_AMP) || defined(E3D_PT100_EXTRUDER_NO_AMP)
 // Define PID constants for extruder with PT100
@@ -117,7 +117,7 @@ EXTRUDER SETTINGS
 #endif
 
 // Extrude mintemp
-#define EXTRUDE_MINTEMP 130
+#define EXTRUDE_MINTEMP 175
 
 // Extruder cooling fans
 #define EXTRUDER_0_AUTO_FAN_PIN   8
@@ -181,6 +181,8 @@ ADDITIONAL FEATURES SETTINGS
 #endif
 
 // temperature runaway
+#define TEMP_MAX_CHECKED_BED 95.0
+
 #define TEMP_RUNAWAY_BED_HYSTERESIS 5
 #define TEMP_RUNAWAY_BED_TIMEOUT 360
 
@@ -421,7 +423,7 @@ THERMISTORS SETTINGS
 #define DEFAULT_RETRACTION 1 //used for PINDA temp calibration and pause print
 #endif
 
-#define END_FILE_SECTION 10000 //number of bytes from end of file used for checking if file is complete
+#define END_FILE_SECTION 20000 //number of bytes from end of file used for checking if file is complete
 
 #ifndef SNMM
 #define SUPPORT_VERBOSITY

@@ -9,77 +9,14 @@
 #define STR(s) XSTR(s)
 
 // Firmware version
-#define FW_version "3.1.0"
-#define FW_local_variant 10
+#define FW_version "3.2.3"
+#define FW_local_variant 13
 #define FW_report_version FW_version " r" STR(FW_local_variant)
 
 #define FW_PRUSA3D_MAGIC "PRUSA3DFW"
 #define FW_PRUSA3D_MAGIC_LEN 10
-// The total size of the EEPROM is
-// 4096 for the Atmega2560
-#define EEPROM_TOP 4096
-#define EEPROM_SILENT 4095
-#define EEPROM_LANG 4094
-#define EEPROM_BABYSTEP_X 4092
-#define EEPROM_BABYSTEP_Y 4090
-#define EEPROM_BABYSTEP_Z 4088
-#define EEPROM_CALIBRATION_STATUS 4087
-#define EEPROM_BABYSTEP_Z0 4085
-#define EEPROM_FILAMENTUSED 4081
-// uint32_t
-#define EEPROM_TOTALTIME 4077
 
-#define EEPROM_BED_CALIBRATION_CENTER     (EEPROM_TOTALTIME-2*4)
-#define EEPROM_BED_CALIBRATION_VEC_X      (EEPROM_BED_CALIBRATION_CENTER-2*4)
-#define EEPROM_BED_CALIBRATION_VEC_Y      (EEPROM_BED_CALIBRATION_VEC_X-2*4)
-
-// Offsets of the Z heiths of the calibration points from the first point.
-// The offsets are saved as 16bit signed int, scaled to tenths of microns.
-#define EEPROM_BED_CALIBRATION_Z_JITTER   (EEPROM_BED_CALIBRATION_VEC_Y-2*8)
-#define EEPROM_FARM_MODE (EEPROM_BED_CALIBRATION_Z_JITTER-1)
-#define EEPROM_FARM_NUMBER (EEPROM_FARM_MODE-3)
-
-// Bed correction is valid if set to 1. If set to zero or 255,
-//   the BED_CORRECTION_OFFSETS bytes are invalid.
-#ifdef MBC_8POINT
-// 5 Unused bytes (available for future options)
-#define EEPROM_UNUSED  (EEPROM_FARM_NUMBER-1)
-#define EEPROM_TOSHIBA_FLASH_AIR_COMPATIBLITY (EEPROM_UNUSED-5)
-#else
-// Old style MBC offsets
-#define EEPROM_BED_CORRECTION_VALID (EEPROM_FARM_NUMBER-1)
-#define EEPROM_BED_CORRECTION_LEFT  (EEPROM_BED_CORRECTION_VALID-1)
-#define EEPROM_BED_CORRECTION_RIGHT (EEPROM_BED_CORRECTION_LEFT-1)
-#define EEPROM_BED_CORRECTION_FRONT (EEPROM_BED_CORRECTION_RIGHT-1)
-#define EEPROM_BED_CORRECTION_REAR  (EEPROM_BED_CORRECTION_FRONT-1)
-#define EEPROM_TOSHIBA_FLASH_AIR_COMPATIBLITY (EEPROM_BED_CORRECTION_REAR-1)
-#endif
-#define EEPROM_PRINT_FLAG (EEPROM_TOSHIBA_FLASH_AIR_COMPATIBLITY-1)
-#define EEPROM_PROBE_TEMP_SHIFT (EEPROM_PRINT_FLAG - 2*5) //5 x int for storing pinda probe temp shift relative to 50 C; unit: motor steps 
-#define EEPROM_TEMP_CAL_ACTIVE (EEPROM_PROBE_TEMP_SHIFT - 1)
-#define EEPROM_BOWDEN_LENGTH (EEPROM_TEMP_CAL_ACTIVE - 2*4) //4 x int for bowden lengths for multimaterial
-#define EEPROM_CALIBRATION_STATUS_PINDA (EEPROM_BOWDEN_LENGTH - 1) //0 - not calibrated; 1 - calibrated
-#define EEPROM_SD_SORT (EEPROM_CALIBRATION_STATUS_PINDA - 1) //0 -time, 1-alpha, 2-none
-#define EEPROM_XYZ_CAL_SKEW (EEPROM_SD_SORT - 4)
-#define EEPROM_WIZARD_ACTIVE (EEPROM_XYZ_CAL_SKEW - 1)
-
-// E^2 address of custom MBC offsets array.
-// Correction of the bed leveling, in micrometers.
-// Current Range is: +/- 500um (stored as int16).
-#define EEPROM_BED_CORRECTION_VALID	499
-#define EEPROM_BED_CORRECTION_OFFSETS	(EEPROM_BED_CORRECTION_VALID - 16)
-#define EEPROM_XY_CALIBRATION_RESULT	(EEPROM_BED_CORRECTION_OFFSETS - 1)
-#define EEPROM_XY_SKEW_DISABLED		(EEPROM_XY_CALIBRATION_RESULT - 1)
-
-// Currently running firmware, each digit stored as uint16_t.
-// The flavor differentiates a dev, alpha, beta, release candidate or a release version.
-#define EEPROM_FIRMWARE_VERSION_END       (FW_PRUSA3D_MAGIC_LEN+8)
-#define EEPROM_FIRMWARE_VERSION_FLAVOR    (FW_PRUSA3D_MAGIC_LEN+6)
-#define EEPROM_FIRMWARE_VERSION_REVISION  (FW_PRUSA3D_MAGIC_LEN+4)
-#define EEPROM_FIRMWARE_VERSION_MINOR     (FW_PRUSA3D_MAGIC_LEN+2)
-#define EEPROM_FIRMWARE_VERSION_MAJOR     FW_PRUSA3D_MAGIC_LEN
-// Magic string, indicating that the current or the previous firmware running was the Prusa3D firmware.
-#define EEPROM_FIRMWARE_PRUSA_MAGIC 0
+#include "eeprom.h"
 
 // Enable this for M767/M768 dump & restore EEPROM
 #define EEPROM_SAVE_RESTORE
@@ -95,7 +32,7 @@
 //#define STRING_VERSION "1.0.2"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(thess, custom)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(macfly1202, custom)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -165,13 +102,11 @@
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX BANG_MAX // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_MAX BANG_MAX // limits current to nozzle while PID is active; 255=full current
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
-  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
-                                  // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
   #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine

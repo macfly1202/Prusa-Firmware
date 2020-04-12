@@ -1,21 +1,6 @@
 /* -*- c++ -*- */
-
-/*
-    Reprap firmware based on Sprinter and grbl.
- Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * @file
  */
 
 /*
@@ -79,6 +64,7 @@
 
 
 #include "ultralcd.h"
+#include "sound.h"
 
 // Macros for bit masks
 #define BIT(b) (1<<(b))
@@ -135,6 +121,7 @@
 //        Call gcode file : "M32 P !filename#" and return to caller file after finishing (similar to #include).
 //        The '#' is necessary when calling from within sd files, as it stops buffer prereading
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
+// M73  - Show percent done and print time remaining
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
 // M82  - Set E codes absolute (default)
@@ -405,6 +392,13 @@ bool no_response = false;
 uint8_t important_status;
 uint8_t saved_filament_type;
 
+
+// storing estimated time to end of print counted by slicer
+uint8_t print_percent_done_normal = PRINT_PERCENT_DONE_INIT;
+uint16_t print_time_remaining_normal = PRINT_TIME_REMAINING_INIT; //estimated remaining print time in minutes
+uint8_t print_percent_done_silent = PRINT_PERCENT_DONE_INIT;
+uint16_t print_time_remaining_silent = PRINT_TIME_REMAINING_INIT; //estimated remaining print time in minutes
+
 //===========================================================================
 //=============================Private Variables=============================
 //===========================================================================
@@ -506,6 +500,8 @@ static int saved_feedmultiply_mm = 100;
 //===========================================================================
 //=============================Routines======================================
 //===========================================================================
+
+static void print_time_remaining_init();
 
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
@@ -944,6 +940,7 @@ void factory_reset(char level, bool quiet)
                    
         // Level 0: Language reset
         case 0:
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
             WRITE(BEEPER, HIGH);
             _delay_ms(100);
             WRITE(BEEPER, LOW);
@@ -953,6 +950,7 @@ void factory_reset(char level, bool quiet)
          
 		//Level 1: Reset statistics
 		case 1:
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 			WRITE(BEEPER, HIGH);
 			_delay_ms(100);
 			WRITE(BEEPER, LOW);
@@ -976,6 +974,7 @@ void factory_reset(char level, bool quiet)
             eeprom_update_byte((uint8_t*)EEPROM_FARM_MODE, farm_mode);
             EEPROM_save_B(EEPROM_FARM_NUMBER, &farm_no);
                        
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
             WRITE(BEEPER, HIGH);
             _delay_ms(100);
             WRITE(BEEPER, LOW);
@@ -988,6 +987,7 @@ void factory_reset(char level, bool quiet)
 			lcd_printPGM(PSTR("Factory RESET"));
 			lcd_print_at_PGM(1, 2, PSTR("ERASING all data"));
 
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 			WRITE(BEEPER, HIGH);
 			_delay_ms(100);
 			WRITE(BEEPER, LOW);
@@ -1036,6 +1036,7 @@ void setup()
 	SERIAL_PROTOCOLLNPGM("start");
 
 	lcd_init();
+     Sound_Init();
 	lcd_print_at_PGM(0, 1, PSTR("   Original Prusa   "));
 	lcd_print_at_PGM(0, 2, PSTR("    3D  Printers    "));
 	delay(2000); lcd_implementation_clear();
@@ -1125,6 +1126,7 @@ void setup()
 
 
 			SET_OUTPUT(BEEPER);
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 			WRITE(BEEPER, HIGH);
 
 			while (!READ(BTN_ENC));
@@ -3550,7 +3552,9 @@ void process_commands()
 		int ix = 0;
 		int iy = 0;
 
-		int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
+		//JMP UP for Igus bearing
+    //int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
+    int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 30;
 		int Z_LIFT_FEEDRATE = homing_feedrate[Z_AXIS] / 40;
 		bool has_z = is_bed_z_jitter_data_valid(); //checks if we have data from Z calibration (offsets of the Z heiths of the 8 calibration points from the first point)
 		#ifdef SUPPORT_VERBOSITY
@@ -3806,10 +3810,15 @@ void process_commands()
                 SERIAL_PROTOCOLPGM("\nZ search height: ");
                 SERIAL_PROTOCOL(MESH_HOME_Z_SEARCH);
                 SERIAL_PROTOCOLLNPGM("\nMeasured points:");
+
+		float midPoint = 0;
+		if (code_seen('M'))
+			midPoint = mbl.z_values[((MESH_NUM_Y_POINTS+1)/2)-1][((MESH_NUM_Y_POINTS+1)/2)-1];
+
                 for (int y = MESH_NUM_Y_POINTS-1; y >= 0; y--) {
                     for (int x = 0; x < MESH_NUM_X_POINTS; x++) {
                         SERIAL_PROTOCOLPGM("  ");
-                        SERIAL_PROTOCOL_F(mbl.z_values[y][x], 5);
+                        SERIAL_PROTOCOL_F(mbl.z_values[y][x] - midPoint, 5);
                     }
                     SERIAL_PROTOCOLPGM("\n");
                 }
@@ -4528,6 +4537,22 @@ Sigma_Exit:
 	}
 #endif		// Z_PROBE_REPEATABILITY_TEST 
 #endif		// ENABLE_AUTO_BED_LEVELING
+	case 73: //M73 show percent done and time remaining
+		if(code_seen('P')) print_percent_done_normal = code_value();
+		if(code_seen('R')) print_time_remaining_normal = code_value();
+		if(code_seen('Q')) print_percent_done_silent = code_value();
+		if(code_seen('S')) print_time_remaining_silent = code_value();
+
+		SERIAL_ECHOPGM("NORMAL MODE: Percent done: ");
+		MYSERIAL.print(int(print_percent_done_normal));
+		SERIAL_ECHOPGM("; print time remaining in mins: ");
+		MYSERIAL.println(print_time_remaining_normal);
+		SERIAL_ECHOPGM("SILENT MODE: Percent done: ");
+		MYSERIAL.print(int(print_percent_done_silent));
+		SERIAL_ECHOPGM("; print time remaining in mins: ");
+		MYSERIAL.println(print_time_remaining_silent);
+
+		break;
 
     case 104: // M104
       if(setTargetedHotend(104)){
@@ -4825,6 +4850,8 @@ Sigma_Exit:
           #endif
         }
       }
+	  //in the end of print set estimated time to end of print and extruders used during print to default values for next print
+	  print_time_remaining_init();
 	  snmm_filaments_used = 0;
       break;
     case 85: // M85
@@ -4878,7 +4905,16 @@ Sigma_Exit:
           // pause the print and ask the user to upgrade the firmware.
           show_upgrade_dialog_if_version_newer(++ strchr_pointer);
       } else {
-          SERIAL_PROTOCOLRPGM(MSG_M115_REPORT);
+          SERIAL_ECHOPGM("FIRMWARE_NAME:Prusa-Firmware ");
+          SERIAL_ECHORPGM(FW_VERSION_STR_P());
+          SERIAL_ECHOPGM(" based on Marlin FIRMWARE_URL:https://github.com/prusa3d/Prusa-Firmware PROTOCOL_VERSION:");
+          SERIAL_ECHOPGM(PROTOCOL_VERSION);
+          SERIAL_ECHOPGM(" MACHINE_TYPE:");
+          SERIAL_ECHOPGM(CUSTOM_MENDEL_NAME); 
+          SERIAL_ECHOPGM(" EXTRUDER_COUNT:"); 
+          SERIAL_ECHOPGM(STRINGIFY(EXTRUDERS)); 
+          SERIAL_ECHOPGM(" UUID:"); 
+          SERIAL_ECHOLNPGM(MACHINE_UUID);
       }
       break;
 /*    case 117: // M117 display message
@@ -5299,6 +5335,7 @@ Sigma_Exit:
       if (beepS > 0)
       {
         #if BEEPER > 0
+if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
           tone(BEEPER, beepS);
           delay(beepP);
           noTone(BEEPER);
@@ -5700,6 +5737,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         lcd_wait_interact();
 		load_filament_time = millis();
 		KEEPALIVE_STATE(PAUSED_FOR_USER);
+        bool bFirst=true;
         while(!lcd_clicked()){
 
 		  cnt++;
@@ -5720,7 +5758,11 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             }
             SET_OUTPUT(BEEPER);
             if (counterBeep== 0){
-              WRITE(BEEPER,HIGH);
+              if((eSoundMode==e_SOUND_MODE_LOUD)||((eSoundMode==e_SOUND_MODE_ONCE)&&bFirst))
+              {
+                   bFirst=false;
+                   WRITE(BEEPER, HIGH);
+              }
             }			
             if (counterBeep== 20){
               WRITE(BEEPER,LOW);
@@ -6326,6 +6368,7 @@ void clamp_to_software_endstops(float target[3])
             float de = e - current_position[E_AXIS];
             for (int i = 1; i < n_segments; ++ i) {
                 float t = float(i) / float(n_segments);
+				if (mbl.active == false) return;
                 plan_buffer_line(
                                  current_position[X_AXIS] + t * dx,
                                  current_position[Y_AXIS] + t * dy,
@@ -6599,6 +6642,7 @@ void Stop()
   disable_heater();
   if(Stopped == false) {
     Stopped = true;
+    lcd_print_stop();
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;
     SERIAL_ERRORLNRPGM(MSG_ERR_STOPPED);
@@ -7239,4 +7283,30 @@ void serialecho_temperatures() {
 	SERIAL_PROTOCOLPGM(" B:");
 	SERIAL_PROTOCOL_F(degBed(), 1);
 	SERIAL_PROTOCOLLN("");
+}
+
+uint16_t print_time_remaining() {
+	uint16_t print_t = PRINT_TIME_REMAINING_INIT;
+	print_t = print_time_remaining_normal;
+	if ((print_t != PRINT_TIME_REMAINING_INIT) && (feedmultiply != 0)) print_t = 100ul * print_t / feedmultiply;
+	return print_t;
+}
+
+uint8_t print_percent_done() {
+	//in case that we have information from M73 gcode return percentage counted by slicer, else return percentage counted as byte_printed/filesize
+	uint8_t percent_done = 0;
+	if (print_percent_done_normal <= 100) {
+		percent_done = print_percent_done_normal;
+	}
+	else {
+		percent_done = card.percentDone();
+	}
+	return percent_done;
+}
+
+static void print_time_remaining_init() {
+	print_time_remaining_normal = PRINT_TIME_REMAINING_INIT;
+	print_time_remaining_silent = PRINT_TIME_REMAINING_INIT;
+	print_percent_done_normal = PRINT_PERCENT_DONE_INIT;
+	print_percent_done_silent = PRINT_PERCENT_DONE_INIT;
 }

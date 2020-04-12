@@ -102,7 +102,7 @@ EXTRUDER SETTINGS
 #endif
 #define HEATER_1_MAXTEMP 305
 #define HEATER_2_MAXTEMP 305
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP 125
 
 #if defined(E3D_PT100_EXTRUDER_WITH_AMP) || defined(E3D_PT100_EXTRUDER_NO_AMP)
 // Define PID constants for extruder with PT100
@@ -419,6 +419,6 @@ THERMISTORS SETTINGS
 
 #define DEFAULT_RETRACTION 1 //used for PINDA temp calibration
 
-#define END_FILE_SECTION 10000 //number of bytes from end of file used for checking if file is complete
+#define END_FILE_SECTION 20000 //number of bytes from end of file used for checking if file is complete
 
 #endif //__CONFIGURATION_PRUSA_H
