@@ -21,16 +21,16 @@
 
   #define FR_SENS 21
 
-// genuine config from Thess
-//  #define X_STEP_PIN 37
-//  #define X_DIR_PIN 48
-//  #define X_ENABLE_PIN 29
-//  #define X_MS1_PIN 40
-//  #define X_MS2_PIN 41
+  // genuine config from Thess
+  //  #define X_STEP_PIN 37
+  //  #define X_DIR_PIN 48
+  //  #define X_ENABLE_PIN 29
+  //  #define X_MS1_PIN 40
+  //  #define X_MS2_PIN 41
   
   //  Remap some pins for X axis becaus eI burned them in a short citrcuit
   // symptom of a dead X axis is nothing move
-    #define X_STEP_PIN 28 // 37
+  #define X_STEP_PIN 28 // 37
   #define X_DIR_PIN 17 // 48
   #define X_ENABLE_PIN 26 // 29
   #define X_MS1_PIN 40
